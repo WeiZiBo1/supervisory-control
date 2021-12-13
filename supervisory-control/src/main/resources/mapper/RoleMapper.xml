@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chint.supervisorycontrol.mapper.RoleMapper">
+
+    <select id="listOptionRoles" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT distinct
+		sr.id,
+		sr.role_class roleClass,
+		sr.role_name roleName
+		FROM
+		supervisory_role sr
+		LEFT JOIN
+		supervisory_user su ON sr.id = su.role_id
+		<where>
+			<if test="roleClass != null">
+				AND sr.role_class = #{roleClass}
+			</if>
+			<foreach collection="relateUsers" item="id" open="and su.id in (" close=") " separator=",">
+				#{id}
+			</foreach>
+		</where>
+    </select>
+
+
+	<select id="listRoles" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT distinct
+		sr.id,
+		sr.role_class roleClass,
+		sr.role_name roleName,
+		sr.role_instruction roleInstruction,
+		sr.is_used isUsed,
+		GROUP_CONCAT(su.user_name) userName
+		FROM
+		supervisory_role sr
+		LEFT JOIN
+		supervisory_user su ON su.role_id = sr.id
+		<where>
+			<if test="roleName != null  and roleName != ''">
+				AND sr.role_name LIKE CONCAT('%',#{roleName},'%')
+			</if>
+			<foreach collection="relateUsers" item="id" open="and sr.create_by in (" close=") " separator=",">
+				#{id}
+			</foreach>
+		</where>
+		GROUP BY sr.id
+	</select>
+</mapper>

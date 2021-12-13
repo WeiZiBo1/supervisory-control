@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chint.supervisorycontrol.mapper.UserMapper">
+
+    <select id="listSuperPartner" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			su.id,
+			su.email,
+			su.company_name companyName,
+			su.is_used isUsed,
+			sr.role_name roleName,
+			DATE_FORMAT(su.gmt_create,'%Y-%m-%d %H:%i:%s') createTime
+		FROM
+			supervisory_user su
+		LEFT JOIN supervisory_role sr ON su.role_id = sr.id
+		<where>
+			su.account_type != 2
+			and su.user_type = 1
+			<if test="searchType != null and searchType == 1">
+				AND su.email LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+			<if test="searchType != null and searchType == 2">
+				AND su.company_name LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+		</where>
+    </select>
+	<select id="listSubAccount" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			su.id,
+			su.email,
+			su.company_name companyName,
+			su.is_used isUsed,
+			sr.role_name roleName,
+			DATE_FORMAT(su.gmt_create,'%Y-%m-%d %H:%i:%s') createTime
+		FROM
+			supervisory_user su
+		LEFT JOIN
+			supervisory_role sr ON su.role_id = sr.id
+		<where>
+			su.account_type = 2
+			<if test="searchCode != null">
+				AND su.user_type = #{searchCode}
+			</if>
+			<if test="searchType != null and searchType == 1">
+				AND su.email LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+			<if test="searchType != null and searchType == 2">
+				AND su.company_name LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+			<foreach collection="relateUsers" item="id" open="and su.id in (" close=") " separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</select>
+
+
+</mapper>

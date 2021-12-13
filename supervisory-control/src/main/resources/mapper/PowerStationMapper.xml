@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chint.supervisorycontrol.mapper.PowerStationMapper">
+
+    <select id="listPowerStation" resultType="com.alibaba.fastjson.JSONObject">
+       SELECT
+			id,
+			power_station_name powerStationName,
+			country,
+			time_zone_id,
+			upload_time,
+			powerstation_location powerstationlocation,
+			powerstation_type powerstationType,
+			power_station_state stationState,
+			capacity,
+			gmt_create gmtcreate,
+			gmt_modified updateTime
+	   FROM
+			supervisory_power_station
+	   <where>
+		   <if test="powerStationName!=null">
+			  AND power_station_name LIKE CONCAT('%',#{powerStationName},'%')
+		   </if>
+	   </where>
+
+    </select>
+
+</mapper>

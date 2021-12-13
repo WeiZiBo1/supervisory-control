@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chint.supervisorycontrol.mapper.AuthorizationMapper">
+
+    <select id="selectAuthorizationListByRoleId" resultType="com.alibaba.fastjson.JSONObject">
+       SELECT
+			sa.id,
+			sa.authorization_page authorizationPage,
+			sa.authorization_detail authorizationDetail,
+			sa.sort,
+			sa.page_level pageLevel,
+			sa.parent_id parentId,
+			sa.url
+		FROM
+			supervisory_authorization sa
+		LEFT JOIN
+			supervisory_role_authorization_relation uar ON sa.id = uar.authorization_id
+		WHERE
+			uar.role_id = #{id}
+    </select>
+
+</mapper>

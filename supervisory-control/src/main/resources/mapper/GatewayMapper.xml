@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chint.supervisorycontrol.mapper.GatewayMapper">
+
+    <select id="listGateways" resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			sg.id,
+			sg.power_station_id powerStationId,
+			sps.power_station_name powerStationName,
+			sg.gateway_name gatewayName,
+		    sg.gateway_status gatewayStatus,
+			sg.mac_address macAddress,
+			sg.gateway_model gatewayModel,
+			sg.hardware_version hardwareVersion,
+			sg.gateway_serial_number gatewaySerialNumber,
+			sg.signal_strength signalStrength,
+			DATE_FORMAT(sg.gmt_create,'%Y-%m-%d %H:%i:%s') createTime,
+			DATE_FORMAT(sg.gmt_modified,'%Y-%m-%d %H:%i:%s') modifiedTime
+		FROM
+		supervisory_gateway sg
+		LEFT JOIN supervisory_power_station sps
+		ON sg.power_station_id=sps.id
+		<where>
+			<if test="searchType!=null and searchType==1">
+				AND gateway_name LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+			<if test="searchType!=null and searchType==2">
+				AND gateway_serial_number LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+			<if test="searchType!=null and searchType==3">
+				AND mac_address LIKE CONCAT('%',#{searchContent},'%')
+			</if>
+			<if test="gatewayStatus!=null and gatewayStatus!=3">
+				AND gateway_status=#{gatewayStatus}
+			</if>
+			<if test="gatewayModel!=null and gatewayModel!=0">
+				AND gateway_model=#{gatewayModel}
+			</if>
+			<if test="gatewayVersion!=null and gatewayVersion!=0">
+				AND hardware_version=#{gatewayVersion}
+			</if>
+
+		</where>
+
+    </select>
+
+	<select id="listGatewayState"  resultType="com.alibaba.fastjson.JSONObject">
+		SELECT
+			count( id ) gatewayTotal,
+			( SELECT count( 1 ) FROM supervisory_gateway WHERE gateway_status = 0 ) gatewayOffline,
+			( SELECT count( 1 ) FROM supervisory_gateway WHERE gateway_status = 1 ) gateway0nline,
+			( SELECT count( 1 ) FROM supervisory_gateway WHERE gateway_active_state = 0 ) gatewayNotActive
+		FROM
+		supervisory_gateway
+	</select>
+
+</mapper>
